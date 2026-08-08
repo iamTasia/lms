@@ -1,0 +1,15 @@
+target/
+*.log
+*.class
+.idea/
+.vscode/
+*.iml
+.git/
+.gitattributes
+.gitignore
+.mvn/wrapper/maven-wrapper.jar
+HELP.md
+README.md
+**/__pycache__/
+**/*.swp
+.env
