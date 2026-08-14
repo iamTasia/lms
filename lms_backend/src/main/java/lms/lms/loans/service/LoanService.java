@@ -138,6 +138,26 @@ public class LoanService {
         return getMemberLoans(member.getId(), member);
     }
 
+    @Transactional(readOnly = true)
+    public List<LoanResponse> getAllLoans(Member authMember) {
+        if (authMember.getRole() != Role.ADMIN) {
+            throw new IllegalArgumentException("Access denied");
+        }
+        return loanRepository.findAll().stream()
+                .map(this::toLoanResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public List<LoanResponse> getOverdueLoans(Member authMember) {
+        if (authMember.getRole() != Role.ADMIN) {
+            throw new IllegalArgumentException("Access denied");
+        }
+        return loanRepository.findOverdueLoans(LocalDateTime.now()).stream()
+                .map(this::toLoanResponse)
+                .collect(Collectors.toList());
+    }
+
     private LoanResponse toLoanResponse(Loan loan) {
         String status;
         if (loan.getReturnedAt() != null) {

@@ -1,15 +1,17 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import Cookies from 'js-cookie';
+import { useAuth } from '../context/AuthContext';
 import client from '../api/client';
 
 export default function Register() {
   const navigate = useNavigate();
+  const { setUser } = useAuth();
   const [form, setForm] = useState({
     name: '',
     email: '',
     password: '',
-    role: 'USER',
+    role: 'MEMBER',
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -25,8 +27,9 @@ export default function Register() {
 
     try {
       const res = await client.post('/api/members/register', form);
-      const { token } = res.data;
+      const { token, member } = res.data;
       Cookies.set('lms_token', token, { expires: 7 }); // 7 days
+      setUser(member);
       navigate('/dashboard');
     } catch (err) {
       const msg =
@@ -78,7 +81,7 @@ export default function Register() {
 
         <label htmlFor="role">Role</label>
         <select id="role" name="role" value={form.role} onChange={handleChange}>
-          <option value="USER">User</option>
+          <option value="MEMBER">User</option>
           <option value="ADMIN">Admin</option>
         </select>
 

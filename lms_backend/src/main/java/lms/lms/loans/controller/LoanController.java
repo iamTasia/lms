@@ -56,4 +56,16 @@ public class LoanController {
         Member member = (Member) authentication.getPrincipal();
         return ResponseEntity.ok(loanService.getMemberLoans(memberId, member));
     }
+
+    @GetMapping("/all")
+    public ResponseEntity<List<LoanResponse>> getAllLoans(Authentication authentication) {
+        Member member = (Member) authentication.getPrincipal();
+        return ResponseEntity.ok(loanService.getAllLoans(member));
+    }
+
+    @GetMapping("/overdue")
+    public ResponseEntity<List<LoanResponse>> getOverdueLoans(Authentication authentication) {
+        Member member = (Member) authentication.getPrincipal();
+        return ResponseEntity.ok(loanService.getOverdueLoans(member));
+    }
 }
