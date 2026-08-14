@@ -748,3 +748,69 @@
   display: flex;
   gap: 8px;
 }
+
+/* ============== Analytics ============== */
+
+.analytics-page {
+  max-width: 1000px;
+}
+
+.analytics-page > h2 {
+  margin-bottom: 24px;
+}
+
+.analytics-stats {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.analytics-stats .analytics-card {
+  flex: 1;
+}
+
+.analytics-card {
+  background: var(--code-bg);
+  border-radius: 10px;
+  padding: 20px;
+  border: 1px solid var(--border);
+}
+
+.analytics-card-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  margin: 0 0 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.analytics-stat {
+  font-size: 36px;
+  font-weight: 800;
+  margin: 0;
+  line-height: 1.1;
+}
+
+.analytics-subtitle {
+  font-size: 13px;
+  color: var(--text);
+  margin: 4px 0 0;
+}
+
+.analytics-loading {
+  font-size: 14px;
+  color: var(--text);
+  font-style: italic;
+}
+
+.analytics-charts {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.error-msg {
+  color: #ef4444;
+  font-size: 14px;
+}

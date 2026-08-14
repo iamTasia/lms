@@ -12,6 +12,7 @@ import Publishers from './pages/Publishers'
 import MyLoans from './pages/MyLoans'
 import MyReservations from './pages/MyReservations'
 import AdminLoans from './pages/AdminLoans'
+import Analytics from './pages/Analytics'
 import './App.css'
 
 function App() {
@@ -29,6 +30,7 @@ function App() {
           {user && <Link to="/my-loans">My Loans</Link>}
           {user && <Link to="/my-reservations">Reservations</Link>}
           {isAdmin && <Link to="/admin/loans">Admin: Loans</Link>}
+          {isAdmin && <Link to="/analytics">Analytics</Link>}
           {!user ? (
             <>
               <Link to="/register">Register</Link>
@@ -60,6 +62,7 @@ function App() {
           <Route path="/my-loans" element={<MyLoans />} />
           <Route path="/my-reservations" element={<MyReservations />} />
           <Route path="/admin/loans" element={<AdminLoans />} />
+          <Route path="/analytics" element={<Analytics />} />
         </Routes>
       </main>
     </div>
