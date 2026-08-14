@@ -9,6 +9,8 @@ import lms.lms.catalog.repository.AuthorRepository;
 import lms.lms.catalog.repository.BookRepository;
 import lms.lms.catalog.repository.PublisherRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,10 +26,8 @@ public class BookService {
     private final AuthorRepository authorRepository;
     private final PublisherRepository publisherRepository;
 
-    public List<BookResponse> findAll() {
-        return bookRepository.findAll().stream()
-                .map(this::toBookResponse)
-                .collect(Collectors.toList());
+    public Page<BookResponse> findAll(Pageable pageable) {
+        return bookRepository.findAll(pageable).map(this::toBookResponse);
     }
 
     public BookResponse findById(Long id) {
@@ -90,10 +90,8 @@ public class BookService {
         bookRepository.deleteById(id);
     }
 
-    public List<BookResponse> search(String title, String author, Boolean available) {
-        return bookRepository.searchBooks(title, author, available).stream()
-                .map(this::toBookResponse)
-                .collect(Collectors.toList());
+    public Page<BookResponse> search(String title, String author, Boolean available, Pageable pageable) {
+        return bookRepository.searchBooks(title, author, available, pageable).map(this::toBookResponse);
     }
 
     private BookResponse toBookResponse(Book book) {

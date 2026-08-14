@@ -1,6 +1,8 @@
 package lms.lms.catalog.repository;
 
 import lms.lms.catalog.entity.Book;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -22,11 +24,16 @@ public interface BookRepository extends JpaRepository<Book, Long> {
     @EntityGraph(attributePaths = {"author", "publisher"})
     List<Book> findAll();
 
-    @Query("SELECT b FROM Book b LEFT JOIN FETCH b.author LEFT JOIN FETCH b.publisher " +
+    @Query(value = "SELECT b FROM Book b LEFT JOIN FETCH b.author LEFT JOIN FETCH b.publisher " +
            "WHERE (:title IS NULL OR b.title LIKE %:title%) " +
            "AND (:author IS NULL OR b.author.name LIKE %:author%) " +
+           "AND (:available IS NULL OR (:available = true AND b.availableCopies > 0))",
+       countQuery = "SELECT COUNT(b) FROM Book b LEFT JOIN b.author a LEFT JOIN b.publisher " +
+           "WHERE (:title IS NULL OR b.title LIKE %:title%) " +
+           "AND (:author IS NULL OR a.name LIKE %:author%) " +
            "AND (:available IS NULL OR (:available = true AND b.availableCopies > 0))")
-    List<Book> searchBooks(@Param("title") String title,
+    Page<Book> searchBooks(@Param("title") String title,
                            @Param("author") String author,
-                           @Param("available") Boolean available);
+                           @Param("available") Boolean available,
+                           Pageable pageable);
 }

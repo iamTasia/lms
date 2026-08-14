@@ -6,11 +6,10 @@ import lms.lms.catalog.entity.Author;
 import lms.lms.catalog.repository.AuthorRepository;
 import lms.lms.catalog.repository.BookRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -20,10 +19,8 @@ public class AuthorService {
     private final AuthorRepository authorRepository;
     private final BookRepository bookRepository;
 
-    public List<AuthorResponse> findAll() {
-        return authorRepository.findAll().stream()
-                .map(this::toAuthorResponse)
-                .collect(Collectors.toList());
+    public Page<AuthorResponse> findAll(Pageable pageable) {
+        return authorRepository.findAll(pageable).map(this::toAuthorResponse);
     }
 
     public AuthorResponse findById(Long id) {

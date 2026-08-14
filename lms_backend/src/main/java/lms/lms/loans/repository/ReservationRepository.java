@@ -2,6 +2,8 @@ package lms.lms.loans.repository;
 
 import lms.lms.loans.entity.Reservation;
 import lms.lms.loans.entity.ReservationStatus;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -21,4 +23,6 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
     List<Reservation> findByMemberIdAndStatus(Long memberId, ReservationStatus status);
 
     Optional<Reservation> findByMemberIdAndBookIdAndStatus(Long memberId, Long bookId, ReservationStatus status);
+
+    Page<Reservation> findByMemberId(Long memberId, Pageable pageable);
 }

@@ -7,72 +7,86 @@ import client from '../api/client';
 export default function Login() {
   const navigate = useNavigate();
   const { setUser } = useAuth();
-  const [form, setForm] = useState({
-    email: '',
-    password: '',
-  });
+  const [form, setForm] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
+    if (error) setError('');
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setLoading(true);
-
     try {
       const res = await client.post('/api/members/login', form);
       const { token, member } = res.data;
-      Cookies.set('lms_token', token, { expires: 7 }); // 7 days
+      Cookies.set('lms_token', token, { expires: 7 });
       setUser(member);
       navigate('/dashboard');
     } catch (err) {
-      const msg =
-        err.response?.data?.message ||
-        err.response?.data?.error ||
-        'Invalid email or password.';
-      setError(msg);
+      setError(err.response?.data?.message || err.response?.data?.error || 'Invalid email or password.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="auth-page">
-      <h2>Log In</h2>
-      <form onSubmit={handleSubmit} className="auth-form">
-        {error && <p className="error-msg">{error}</p>}
+    <section className="auth-portal">
+      <div className="auth-portal__bg" aria-hidden="true" />
 
-        <label htmlFor="email">Email</label>
-        <input
-          id="email"
-          name="email"
-          type="email"
-          value={form.email}
-          onChange={handleChange}
-          required
-        />
+      <div className="auth-portal__card">
+        <p className="auth-portal__brand">Library Access</p>
+        <h1 className="auth-portal__title">Welcome Back</h1>
+        <p className="auth-portal__lede">
+          Sign in to browse the catalog, manage loans, and track reservations.
+        </p>
 
-        <label htmlFor="password">Password</label>
-        <input
-          id="password"
-          name="password"
-          type="password"
-          value={form.password}
-          onChange={handleChange}
-          required
-        />
+        <form onSubmit={handleSubmit} className="auth-form" noValidate>
+          {error && <p className="auth-portal__error" role="alert">{error}</p>}
 
-        <button type="submit" disabled={loading}>
-          {loading ? 'Logging in...' : 'Log In'}
-        </button>
-      </form>
-      <p className="auth-link">
-        Don't have an account? <Link to="/register">Register</Link>
-      </p>
-    </div>
+          <div className="auth-form-field">
+            <label htmlFor="email" className="auth-form-field__label">Email</label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              value={form.email}
+              onChange={handleChange}
+              placeholder="you@university.edu"
+              autoComplete="email"
+              required
+              className="auth-form-field__input"
+            />
+          </div>
+
+          <div className="auth-form-field">
+            <label htmlFor="password" className="auth-form-field__label">Password</label>
+            <input
+              id="password"
+              name="password"
+              type="password"
+              value={form.password}
+              onChange={handleChange}
+              placeholder="••••••••"
+              autoComplete="current-password"
+              required
+              className="auth-form-field__input"
+            />
+          </div>
+
+          <button type="submit" disabled={loading} className="auth-portal__submit">
+            {loading ? 'Signing in…' : 'Sign In'}
+          </button>
+        </form>
+
+        <p className="auth-portal__footer">
+          New to the library?
+          <Link to="/register">Create an account</Link>
+        </p>
+      </div>
+    </section>
   );
 }

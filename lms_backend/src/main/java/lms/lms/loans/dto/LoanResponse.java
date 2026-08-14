@@ -14,6 +14,8 @@ import java.time.LocalDateTime;
 @Builder
 public class LoanResponse {
     private Long id;
+    private Long memberId;
+    private String memberName;
     private Long bookId;
     private String bookTitle;
     private String bookIsbn;

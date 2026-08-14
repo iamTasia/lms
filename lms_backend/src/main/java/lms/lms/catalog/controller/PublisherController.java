@@ -5,10 +5,11 @@ import lms.lms.catalog.dto.PublisherRequest;
 import lms.lms.catalog.dto.PublisherResponse;
 import lms.lms.catalog.service.PublisherService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/catalog/publishers")
@@ -18,8 +19,8 @@ public class PublisherController {
     private final PublisherService publisherService;
 
     @GetMapping
-    public ResponseEntity<List<PublisherResponse>> getAll() {
-        return ResponseEntity.ok(publisherService.findAll());
+    public ResponseEntity<Page<PublisherResponse>> getAll(@PageableDefault(size = 20) Pageable pageable) {
+        return ResponseEntity.ok(publisherService.findAll(pageable));
     }
 
     @GetMapping("/{id}")

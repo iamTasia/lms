@@ -22,16 +22,7 @@ export default function BookForm() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
 
-  // Not admin → no render at all (not just hide the form)
-  if (!isAdmin) {
-    return (
-      <div className="page">
-        <p className="error-msg">You don't have permission to access this page.</p>
-        <Link to="/books" className="link">&larr; Back to Books</Link>
-      </div>
-    );
-  }
-
+  // All hooks must be before any early return ⬇️
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -98,6 +89,16 @@ export default function BookForm() {
       setSaving(false);
     }
   };
+
+  // Early returns are safe here — all hooks ran above ⬆️
+  if (!isAdmin) {
+    return (
+      <div className="page">
+        <p className="error-msg">You don't have permission to access this page.</p>
+        <Link to="/books" className="link">&larr; Back to Books</Link>
+      </div>
+    );
+  }
 
   if (loading) return <p className="status-msg">Loading form...</p>;
 

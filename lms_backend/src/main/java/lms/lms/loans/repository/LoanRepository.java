@@ -1,6 +1,7 @@
 package lms.lms.loans.repository;
 
 import lms.lms.loans.entity.Loan;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -17,8 +18,9 @@ public interface LoanRepository extends JpaRepository<Loan, Long> {
     @Query("SELECT l FROM Loan l WHERE l.member.id = :memberId AND l.returnedAt IS NULL")
     List<Loan> findActiveByMemberId(@Param("memberId") Long memberId);
 
-    @Query("SELECT l FROM Loan l WHERE l.returnedAt IS NULL AND l.dueAt < :now")
-    List<Loan> findOverdueLoans(@Param("now") LocalDateTime now);
+    @Query(value = "SELECT l FROM Loan l JOIN FETCH l.member JOIN FETCH l.book WHERE l.returnedAt IS NULL AND l.dueAt < :now",
+           countQuery = "SELECT COUNT(l) FROM Loan l WHERE l.returnedAt IS NULL AND l.dueAt < :now")
+    Page<Loan> findOverdueLoans(@Param("now") LocalDateTime now, Pageable pageable);
 
     @Query("SELECT l FROM Loan l WHERE l.member.id = :memberId AND l.book.id = :bookId AND l.returnedAt IS NULL")
     Optional<Loan> findActiveByMemberAndBook(@Param("memberId") Long memberId, @Param("bookId") Long bookId);
@@ -30,6 +32,14 @@ public interface LoanRepository extends JpaRepository<Loan, Long> {
 
     @Query("SELECT l FROM Loan l JOIN FETCH l.book WHERE l.member.id = :memberId ORDER BY l.borrowedAt DESC")
     List<Loan> findByMemberIdWithBook(@Param("memberId") Long memberId);
+
+    @Query(value = "SELECT l FROM Loan l JOIN FETCH l.book WHERE l.member.id = :memberId ORDER BY l.borrowedAt DESC",
+           countQuery = "SELECT COUNT(l) FROM Loan l WHERE l.member.id = :memberId")
+    Page<Loan> findByMemberIdWithBook(@Param("memberId") Long memberId, Pageable pageable);
+
+    @Query(value = "SELECT l FROM Loan l JOIN FETCH l.member JOIN FETCH l.book ORDER BY l.borrowedAt DESC",
+           countQuery = "SELECT COUNT(l) FROM Loan l")
+    Page<Loan> findAllWithMemberAndBook(Pageable pageable);
 
     // Analytics queries
 

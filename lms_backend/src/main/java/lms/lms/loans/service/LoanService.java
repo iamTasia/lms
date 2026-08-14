@@ -12,6 +12,8 @@ import lms.lms.loans.repository.ReservationRepository;
 import lms.lms.members.entity.Member;
 import lms.lms.members.entity.Role;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -123,39 +125,36 @@ public class LoanService {
     }
 
     @Transactional(readOnly = true)
-    public List<LoanResponse> getMemberLoans(Long memberId, Member authMember) {
+    public Page<LoanResponse> getMemberLoans(Long memberId, Member authMember, Pageable pageable) {
         if (!memberId.equals(authMember.getId()) && authMember.getRole() != Role.ADMIN) {
             throw new IllegalArgumentException("Access denied");
         }
 
-        return loanRepository.findByMemberIdWithBook(memberId).stream()
-                .map(this::toLoanResponse)
-                .collect(Collectors.toList());
+        return loanRepository.findByMemberIdWithBook(memberId, pageable)
+                .map(this::toLoanResponse);
     }
 
     @Transactional(readOnly = true)
-    public List<LoanResponse> getMyLoans(Member member) {
-        return getMemberLoans(member.getId(), member);
+    public Page<LoanResponse> getMyLoans(Member member, Pageable pageable) {
+        return getMemberLoans(member.getId(), member, pageable);
     }
 
     @Transactional(readOnly = true)
-    public List<LoanResponse> getAllLoans(Member authMember) {
+    public Page<LoanResponse> getAllLoans(Member authMember, Pageable pageable) {
         if (authMember.getRole() != Role.ADMIN) {
             throw new IllegalArgumentException("Access denied");
         }
-        return loanRepository.findAll().stream()
-                .map(this::toLoanResponse)
-                .collect(Collectors.toList());
+        return loanRepository.findAllWithMemberAndBook(pageable)
+                .map(this::toLoanResponse);
     }
 
     @Transactional(readOnly = true)
-    public List<LoanResponse> getOverdueLoans(Member authMember) {
+    public Page<LoanResponse> getOverdueLoans(Member authMember, Pageable pageable) {
         if (authMember.getRole() != Role.ADMIN) {
             throw new IllegalArgumentException("Access denied");
         }
-        return loanRepository.findOverdueLoans(LocalDateTime.now()).stream()
-                .map(this::toLoanResponse)
-                .collect(Collectors.toList());
+        return loanRepository.findOverdueLoans(LocalDateTime.now(), pageable)
+                .map(this::toLoanResponse);
     }
 
     private LoanResponse toLoanResponse(Loan loan) {
@@ -170,6 +169,8 @@ public class LoanService {
 
         return LoanResponse.builder()
                 .id(loan.getId())
+                .memberId(loan.getMember().getId())
+                .memberName(loan.getMember().getName())
                 .bookId(loan.getBook().getId())
                 .bookTitle(loan.getBook().getTitle())
                 .bookIsbn(loan.getBook().getIsbn())

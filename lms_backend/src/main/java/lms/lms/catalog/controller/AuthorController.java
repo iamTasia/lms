@@ -5,10 +5,11 @@ import lms.lms.catalog.dto.AuthorRequest;
 import lms.lms.catalog.dto.AuthorResponse;
 import lms.lms.catalog.service.AuthorService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/catalog/authors")
@@ -18,8 +19,8 @@ public class AuthorController {
     private final AuthorService authorService;
 
     @GetMapping
-    public ResponseEntity<List<AuthorResponse>> getAll() {
-        return ResponseEntity.ok(authorService.findAll());
+    public ResponseEntity<Page<AuthorResponse>> getAll(@PageableDefault(size = 20) Pageable pageable) {
+        return ResponseEntity.ok(authorService.findAll(pageable));
     }
 
     @GetMapping("/{id}")

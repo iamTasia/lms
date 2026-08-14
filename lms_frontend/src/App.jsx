@@ -1,6 +1,6 @@
-import { Routes, Route, Link } from 'react-router-dom'
+import { Routes, Route, Link, useLocation } from 'react-router-dom'
 import { useAuth } from './context/AuthContext'
-import HealthCheck from './pages/HealthCheck'
+import Homepage from './pages/Homepage'
 import Register from './pages/Register'
 import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
@@ -17,10 +17,12 @@ import './App.css'
 
 function App() {
   const { isAdmin, user } = useAuth()
+  const location = useLocation()
+  const isHome = location.pathname === '/'
 
   return (
     <div className="app">
-      <nav className="navbar">
+      <nav className={`navbar ${isHome ? 'navbar--transparent' : ''}`}>
         <Link to="/" className="nav-brand">LMS</Link>
         <div className="nav-links">
           <Link to="/">Home</Link>
@@ -42,14 +44,9 @@ function App() {
         </div>
       </nav>
 
-      <main className="main-content">
+      <main className={isHome ? 'main-content main-content--home' : 'main-content'}>
         <Routes>
-          <Route path="/" element={
-            <>
-              <h1>Smart Library Management</h1>
-              <HealthCheck />
-            </>
-          } />
+          <Route path="/" element={<Homepage />} />
           <Route path="/register" element={<Register />} />
           <Route path="/login" element={<Login />} />
           <Route path="/dashboard" element={<Dashboard />} />

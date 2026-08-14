@@ -6,11 +6,10 @@ import lms.lms.catalog.entity.Publisher;
 import lms.lms.catalog.repository.PublisherRepository;
 import lms.lms.catalog.repository.BookRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -20,10 +19,8 @@ public class PublisherService {
     private final PublisherRepository publisherRepository;
     private final BookRepository bookRepository;
 
-    public List<PublisherResponse> findAll() {
-        return publisherRepository.findAll().stream()
-                .map(this::toPublisherResponse)
-                .collect(Collectors.toList());
+    public Page<PublisherResponse> findAll(Pageable pageable) {
+        return publisherRepository.findAll(pageable).map(this::toPublisherResponse);
     }
 
     public PublisherResponse findById(Long id) {

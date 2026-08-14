@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import client from '../api/client';
+import Pagination from '../components/Pagination';
+import BookCover from '../components/BookCover';
 
 export default function BooksList() {
   const { isAdmin } = useAuth();
@@ -9,6 +11,8 @@ export default function BooksList() {
   const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [page, setPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
 
   const title = searchParams.get('title') || '';
   const available = searchParams.get('available');
@@ -17,7 +21,7 @@ export default function BooksList() {
     setLoading(true);
     setError(null);
 
-    const params = {};
+    const params = { page, size: 20 };
     if (title) params.title = title;
     if (available === 'true') params.available = true;
 
@@ -27,16 +31,20 @@ export default function BooksList() {
 
     client
       .get(endpoint, { params })
-      .then((res) => setBooks(res.data))
-      .catch((err) => setError(err.response?.data?.message || 'Failed to load books'))
+      .then((res) => {
+        setBooks(res.data.content || res.data || []);
+        setTotalPages(res.data.totalPages ?? 0);
+      })
+      .catch((err) => setError(err.response?.data?.message || 'Failed to load books.'))
       .finally(() => setLoading(false));
-  }, [title, available]);
+  }, [title, available, page]);
 
   const updateTitle = (value) => {
     const next = new URLSearchParams(searchParams);
     if (value) next.set('title', value);
     else next.delete('title');
     setSearchParams(next);
+    setPage(0);
   };
 
   const toggleAvailable = () => {
@@ -44,24 +52,36 @@ export default function BooksList() {
     if (available === 'true') next.delete('available');
     else next.set('available', 'true');
     setSearchParams(next);
+    setPage(0);
   };
 
-  return (
-    <div className="page">
-      <div className="page-header">
-        <h2>Books</h2>
-        {isAdmin && <Link to="/books/new" className="btn btn-primary">Add Book</Link>}
-      </div>
+  const totalCount = books.length;
 
-      <div className="search-bar">
+  return (
+    <div>
+      <header className="page-header">
+        <div>
+          <p className="page-header__eyebrow">The Collection</p>
+          <h1 className="page-header__title">Browse the Catalog</h1>
+          <p className="page-header__subtitle">Search the library's holdings and find what to read next.</p>
+        </div>
+        {isAdmin && (
+          <div className="page-header__actions">
+            <Link to="/books/new" className="btn btn-primary">Add Book</Link>
+          </div>
+        )}
+      </header>
+
+      <div className="catalog-toolbar" role="search">
         <input
           type="text"
-          placeholder="Search by title..."
+          placeholder="Search by title…"
           value={title}
           onChange={(e) => updateTitle(e.target.value)}
-          className="search-input"
+          className="catalog-toolbar__search"
+          aria-label="Search books by title"
         />
-        <label className="toggle-label">
+        <label className="catalog-toolbar__toggle">
           <input
             type="checkbox"
             checked={available === 'true'}
@@ -71,40 +91,60 @@ export default function BooksList() {
         </label>
       </div>
 
-      {loading && <p className="status-msg">Loading books...</p>}
-      {error && <p className="error-msg">{error}</p>}
-
-      {!loading && !error && books.length === 0 && (
-        <p className="status-msg">No books found.</p>
+      {loading && (
+        <div className="state-block state-block--loading">
+          <p className="state-block__hint">Loading the shelves…</p>
+        </div>
       )}
 
-      {!loading && !error && books.length > 0 && (
-        <table className="data-table">
-          <thead>
-            <tr>
-              <th>Title</th>
-              <th>Author</th>
-              <th>Available</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            {books.map((book) => (
-              <tr key={book.id}>
-                <td>{book.title}</td>
-                <td>{book.authorName}</td>
-                <td>
-                  <span className={book.availableCopies > 0 ? 'badge badge-ok' : 'badge badge-empty'}>
-                    {book.availableCopies}/{book.totalCopies}
-                  </span>
-                </td>
-                <td>
-                  <Link to={`/books/${book.id}`} className="link">View</Link>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      {error && <p className="error-msg" role="alert">{error}</p>}
+
+      {!loading && !error && totalCount === 0 && (
+        <div className="state-block">
+          <h3 className="state-block__title">No books found</h3>
+          <p className="state-block__hint">
+            {title
+              ? `Nothing in the catalog matches "${title}". Try a different search.`
+              : 'The catalog is empty right now. New arrivals will appear here.'}
+          </p>
+        </div>
+      )}
+
+      {!loading && !error && totalCount > 0 && (
+        <>
+          <div className="catalog-grid">
+            {books.map((book) => {
+              const inStock = book.availableCopies > 0;
+              return (
+                <Link
+                  to={`/books/${book.id}`}
+                  key={book.id}
+                  className="book-card"
+                >
+                  <BookCover title={book.title} author={book.authorName} />
+                  <div className="book-card__body">
+                    <h3 className="book-card__title">{book.title}</h3>
+                    <p className="book-card__author">{book.authorName}</p>
+                    <div className="book-card__meta">
+                      <span
+                        className={`book-card__availability ${
+                          inStock ? 'book-card__availability--ok' : 'book-card__availability--out'
+                        }`}
+                      >
+                        <span className="book-card__availability-dot" />
+                        {inStock
+                          ? `${book.availableCopies} of ${book.totalCopies} available`
+                          : 'All copies on loan'}
+                      </span>
+                      <span className="book-card__view">View →</span>
+                    </div>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+          <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
+        </>
       )}
     </div>
   );

@@ -10,6 +10,8 @@ import lms.lms.loans.repository.ReservationRepository;
 import lms.lms.members.entity.Member;
 import lms.lms.members.entity.Role;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -67,11 +69,9 @@ public class ReservationService {
     }
 
     @Transactional(readOnly = true)
-    public List<ReservationResponse> getMyReservations(Member member) {
-        return reservationRepository.findByMemberIdAndStatus(member.getId(), ReservationStatus.PENDING)
-                .stream()
-                .map(this::toReservationResponse)
-                .collect(Collectors.toList());
+    public Page<ReservationResponse> getMyReservations(Member member, Pageable pageable) {
+        return reservationRepository.findByMemberId(member.getId(), pageable)
+                .map(this::toReservationResponse);
     }
 
     private ReservationResponse toReservationResponse(Reservation reservation) {

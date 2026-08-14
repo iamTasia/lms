@@ -5,8 +5,8 @@ import {
 } from 'recharts';
 import client from '../api/client';
 
-const ACCENT = '#aa3bff';
-const ACCENT_LIGHT = 'rgba(170, 59, 255, 0.15)';
+const ACCENT = '#1e3a5f';
+const ACCENT_LIGHT = 'rgba(30, 58, 95, 0.15)';
 const RED = '#ef4444';
 const GREEN = '#22c55e';
 
