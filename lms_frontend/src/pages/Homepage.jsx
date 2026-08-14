@@ -52,8 +52,7 @@ export default function Homepage() {
 
       <div className="homepage-hero__content">
         <h1 className="homepage-hero__title">
-          Smart Library
-          <br />
+          <span className="homepage-hero__title-line">Smart Library</span>
           <span className="homepage-hero__title-italic">Management</span>
         </h1>
         <p className="homepage-hero__lede">
@@ -88,11 +87,6 @@ export default function Homepage() {
           <span className="homepage-hero__meta-item">Built for faculty &amp; students</span>
         </div>
       </div>
-
-      <a href="#homepage-below" className="homepage-hero__scroll" aria-label="Scroll for more">
-        <span>Scroll</span>
-        <span className="homepage-hero__scroll-line" aria-hidden="true" />
-      </a>
     </section>
   );
 }

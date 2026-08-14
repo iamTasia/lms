@@ -1,4 +1,5 @@
 import { Routes, Route, Link, useLocation } from 'react-router-dom'
+import { useEffect, useState } from 'react'
 import { useAuth } from './context/AuthContext'
 import Homepage from './pages/Homepage'
 import Register from './pages/Register'
@@ -19,11 +20,30 @@ function App() {
   const { isAdmin, user } = useAuth()
   const location = useLocation()
   const isHome = location.pathname === '/'
+  const [menuOpen, setMenuOpen] = useState(false)
+
+  // Close the menu whenever the route changes.
+  useEffect(() => {
+    setMenuOpen(false)
+  }, [location.pathname])
 
   return (
     <div className="app">
-      <nav className={`navbar ${isHome ? 'navbar--transparent' : ''}`}>
+      <nav className={`navbar ${isHome ? 'navbar--transparent' : ''} ${menuOpen ? 'is-open' : ''}`}>
         <Link to="/" className="nav-brand">LMS</Link>
+
+        <button
+          type="button"
+          className="nav-toggle"
+          aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+          aria-expanded={menuOpen}
+          onClick={() => setMenuOpen((v) => !v)}
+        >
+          <span className="nav-toggle__bar" />
+          <span className="nav-toggle__bar" />
+          <span className="nav-toggle__bar" />
+        </button>
+
         <div className="nav-links">
           <Link to="/">Home</Link>
           <Link to="/books">Books</Link>
